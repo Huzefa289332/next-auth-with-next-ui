@@ -5,6 +5,7 @@ import { db } from '@/db';
 
 const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
 const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
+const SECRET = process.env.SECRET;
 
 if (!GITHUB_CLIENT_ID || !GITHUB_CLIENT_SECRET) {
   throw new Error('Missing github oauth credentials');
@@ -23,6 +24,7 @@ export const {
       clientSecret: GITHUB_CLIENT_SECRET,
     }),
   ],
+  secret: SECRET,
   callbacks: {
     // Usually not needed, here we are fixing a bug in nextauth
     async session({ session, user }: any) {
