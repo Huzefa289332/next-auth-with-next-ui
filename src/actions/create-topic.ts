@@ -35,7 +35,7 @@ export async function createTopic(
   if (!session || !session.user) {
     return {
       errors: {
-        _form: ['You must signed in to do this.'],
+        _form: ['You must be signed in to do this.'],
       },
     };
   }
