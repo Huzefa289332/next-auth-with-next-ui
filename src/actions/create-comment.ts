@@ -1,10 +1,10 @@
-"use server";
+'use server';
 
-import { revalidatePath } from "next/cache";
-import { z } from "zod";
-import { auth } from "@/auth";
-import { db } from "@/db";
-import paths from "@/paths";
+import { revalidatePath } from 'next/cache';
+import { z } from 'zod';
+import { auth } from '@/auth';
+import { db } from '@/db';
+import paths from '@/paths';
 
 const createCommentSchema = z.object({
   content: z.string().min(3),
@@ -23,22 +23,23 @@ export async function createComment(
   formState: CreateCommentFormState,
   formData: FormData
 ): Promise<CreateCommentFormState> {
+  const session = await auth();
+
+  if (!session || !session.user) {
+    return {
+      errors: {
+        _form: ['You must sign in to do this.'],
+      },
+    };
+  }
+
   const result = createCommentSchema.safeParse({
-    content: formData.get("content"),
+    content: formData.get('content'),
   });
 
   if (!result.success) {
     return {
       errors: result.error.flatten().fieldErrors,
-    };
-  }
-
-  const session = await auth();
-  if (!session || !session.user) {
-    return {
-      errors: {
-        _form: ["You must sign in to do this."],
-      },
     };
   }
 
@@ -58,13 +59,13 @@ export async function createComment(
           _form: [err.message],
         },
       };
-    } else {
-      return {
-        errors: {
-          _form: ["Something went wrong..."],
-        },
-      };
     }
+
+    return {
+      errors: {
+        _form: ['Something went wrong...'],
+      },
+    };
   }
 
   const topic = await db.topic.findFirst({
@@ -74,12 +75,13 @@ export async function createComment(
   if (!topic) {
     return {
       errors: {
-        _form: ["Failed to revalidate topic"],
+        _form: ['Failed to revalidate topic'],
       },
     };
   }
 
   revalidatePath(paths.postShow(topic.slug, postId));
+
   return {
     errors: {},
     success: true,
